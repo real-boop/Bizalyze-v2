@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -44,7 +45,34 @@ function getPasswordStrength(password: string) {
   }
 }
 
-export default function AuthConfirmPage() {
+// Loading fallback component
+function AuthConfirmLoading() {
+  return (
+    <>
+      <header className="px-2 lg:px-6 h-16 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto flex h-16 items-center justify-between">
+          <a href="/" className="flex items-center gap-2 font-bold hover:opacity-80 transition-opacity">
+            <img src="/logo-v3.png" alt="Bizalyze" className="h-8 w-auto" />
+          </a>
+          <div></div>
+        </div>
+      </header>
+      <main>
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="bg-card rounded-lg border border-border shadow-lg p-8 max-w-md w-full text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full"></div>
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">Loading...</h2>
+            <p className="text-muted-foreground">Please wait while we process your request...</p>
+          </div>
+        </div>
+      </main>
+    </>
+  )
+}
+
+function AuthConfirmPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -661,5 +689,13 @@ export default function AuthConfirmPage() {
         </BackgroundPaths>
       </main>
     </>
+  )
+}
+
+export default function AuthConfirmPage() {
+  return (
+    <Suspense fallback={<AuthConfirmLoading />}>
+      <AuthConfirmPageContent />
+    </Suspense>
   )
 }
