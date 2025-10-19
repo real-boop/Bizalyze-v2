@@ -503,7 +503,7 @@ export default function LandingPage() {
                           width={496}
                           height={296}
                           alt="Desktop UI"
-                          className="w-full h-full object-cover object-center"
+                          className="w-full h-full object-contain object-center"
                           priority
                         />
                       </div>
@@ -525,7 +525,7 @@ export default function LandingPage() {
                           width={136}
                           height={276}
                           alt="Mobile UI"
-                          className="w-full h-full object-cover object-contain"
+                          className="w-full h-full object-contain object-contain"
                         />
                       </div>
                     </div>
