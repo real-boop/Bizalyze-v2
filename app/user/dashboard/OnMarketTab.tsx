@@ -92,7 +92,7 @@ const OnMarketTab: React.FC<OnMarketTabProps> = ({ userId, onDataReady, paymentS
       }
     }
     fetchUserBusinesses()
-  }, [userId, onDataReady])
+  }, [userId])
 
   // Load bookmarks and contacted links from localStorage on mount
   useEffect(() => {
