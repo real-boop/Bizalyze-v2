@@ -94,29 +94,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, onSignIn, def
     }
   }
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/confirm`
-        }
-      })
-      
-      if (error) {
-        setError(error.message)
-      }
-      // OAuth redirects to Google, so we don't need to handle success here
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (isSignUp) {
@@ -248,31 +225,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, onSignIn, def
             </div>
           </form>
         )}
-
-        <div className="my-4 flex items-center justify-center">
-          <span className="text-xs text-gray-400">or</span>
-        </div>
-        
-        <Button 
-          className="w-full" 
-          variant="outline" 
-          onClick={handleGoogleSignIn}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-              <g>
-                <path fill="#4285F4" d="M21.805 10.023h-9.765v3.977h5.625c-.243 1.243-1.484 3.652-5.625 3.652-3.375 0-6.125-2.797-6.125-6.252s2.75-6.252 6.125-6.252c1.922 0 3.211.82 3.953 1.516l2.703-2.633c-1.672-1.547-3.828-2.5-6.656-2.5-5.484 0-9.938 4.484-9.938 9.869s4.453 9.869 9.938 9.869c5.719 0 9.516-4.016 9.516-9.672 0-.652-.07-1.148-.156-1.652z"/>
-                <path fill="#34A853" d="M3.17 7.548l3.094 2.27c.844-1.652 2.406-2.672 4.211-2.672 1.172 0 2.211.406 3.031 1.188l2.297-2.297c-1.406-1.297-3.219-2.094-5.328-2.094-3.672 0-6.75 2.984-6.75 6.672 0 1.016.219 1.984.594 2.828z"/>
-                <path fill="#FBBC05" d="M12 21.75c2.438 0 4.484-.797 5.984-2.172l-2.828-2.297c-.797.547-1.797.875-3.156.875-2.438 0-4.516-1.641-5.266-3.844l-3.094 2.406c1.484 2.938 4.594 4.922 8.36 4.922z"/>
-                <path fill="#EA4335" d="M21.805 10.023h-9.765v3.977h5.625c-.243 1.243-1.484 3.652-5.625 3.652-3.375 0-6.125-2.797-6.125-6.252s2.75-6.252 6.125-6.252c1.922 0 3.211.82 3.953 1.516l2.703-2.633c-1.672-1.547-3.828-2.5-6.656-2.5-5.484 0-9.938 4.484-9.938 9.869s4.453 9.869 9.938 9.869c5.719 0 9.516-4.016 9.516-9.672 0-.652-.07-1.148-.156-1.652z"/>
-              </g>
-            </svg>
-          )}
-          Continue with Google
-        </Button>
       </DialogContent>
     </Dialog>
   )
