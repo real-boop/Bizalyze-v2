@@ -394,6 +394,7 @@ const Dashboard = () => {
   const [dashboardState, setDashboardState] = useState<DashboardState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isInitializing = useRef(false);
 
   const router = useRouter();
 
@@ -549,6 +550,12 @@ const Dashboard = () => {
     }
 
     const initializeDashboard = async () => {
+      if (isInitializing.current) {
+        console.log('⏭️ Already initializing, skipping duplicate call')
+        return
+      }
+      
+      isInitializing.current = true
       console.log('🚀 [PHASE1] Starting initialization')
       setIsLoading(true)
       setError(null)
@@ -587,6 +594,7 @@ const Dashboard = () => {
         setDashboardState({ state: 4 }) // Safe fallback
       } finally {
         setIsLoading(false)
+        isInitializing.current = false
         console.log('🏁 [PHASE1] Initialization complete')
       }
     }
@@ -606,6 +614,11 @@ const Dashboard = () => {
       
       // Only react to actual auth changes
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        if (isInitializing.current) {
+          console.log('⏭️ Already initializing, skipping auth event')
+          return
+        }
+        
         console.log('🔄 AUTH EVENT:', event, 'calling detectDashboardState')
         try {
           const urlParams = new URLSearchParams(window.location.search)
