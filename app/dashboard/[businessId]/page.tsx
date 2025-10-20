@@ -472,25 +472,19 @@ const Dashboard = () => {
     })
     
     try {
-      // Development bypass
-      const shouldBypass = process.env.NODE_ENV === 'development' && 
-        process.env.NEXT_PUBLIC_BYPASS_PAYWALL === 'true'
-      if (shouldBypass) {
-        console.log('🔍 [PHASE1] Development bypass active')
-        return { state: 1 }
-      }
-
       // LOGGED IN → Check if paid or free
       if (user) {
+        console.log('🔍 [PHASE1] User is logged in, checking database...')
+        
         const { data: purchase, error } = await supabase
           .from('user_businesses')
           .select('*')
           .eq('business_id', businessId)
           .eq('user_id', user.id)
           .in('payment_type', ['paid', 'free'])
-          .maybeSingle()  // ✅ Fixed: Use maybeSingle() instead of single()
+          .maybeSingle()
         
-        console.log('🔍 [PHASE1] Logged in user check:', { purchase, error })
+        console.log('🔍 [PHASE1] Database query result:', { purchase, error })
         
         if (purchase && !error) {
           console.log('✅ [PHASE1] User has access - returning STATE 1')
@@ -503,6 +497,7 @@ const Dashboard = () => {
 
       // NOT LOGGED IN → Check grace period
       if (!checkoutId) {
+        console.log('🔍 [PHASE1] No checkoutId - returning STATE 4')
         return { state: 4 }
       }
 
@@ -535,8 +530,7 @@ const Dashboard = () => {
         }
       }
     } catch (error) {
-      console.error('State detection failed:', error)
-      // ✅ Fixed: Return safe fallback state
+      console.error('❌ [PHASE1] State detection failed:', error)
       return { state: 4 }
     }
   }
