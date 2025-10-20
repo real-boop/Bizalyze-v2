@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, Key, AlertCircle, Loader2, Mail, Eye, EyeOff } from 'lucide-react'
 import BackgroundPaths from "@/components/kokonutui/background-paths"
+import { useTheme } from "next-themes"
 
 type ConfirmationState = 'loading' | 'password-setup' | 'auto-login' | 'success' | 'error'
 
@@ -75,6 +76,7 @@ function AuthConfirmLoading() {
 function AuthConfirmPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { setTheme } = useTheme()
   
   const [state, setState] = useState<ConfirmationState>('loading')
   const [error, setError] = useState<string | null>(null)
@@ -98,6 +100,11 @@ function AuthConfirmPageContent() {
   const passwordValid = passwordStrength.score >= 4 // Require strong password
   const passwordsMatch = newPassword === confirmPassword
   const canSubmitPassword = passwordValid && passwordsMatch && newPassword.length > 0
+
+  // Force light mode on auth confirm page
+  useEffect(() => {
+    setTheme("light")
+  }, [setTheme])
 
   // Extract confirmation parameters from URL
   const tokenHash = searchParams.get('token_hash')
