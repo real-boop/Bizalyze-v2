@@ -92,7 +92,7 @@ const OffMarketTab: React.FC<OffMarketTabProps> = ({ userId, onDataReady }) => {
       }
     }
     fetchUserBusinesses()
-  }, [userId, onDataReady])
+  }, [userId])
 
   // Load bookmarks from localStorage on mount
   useEffect(() => {
