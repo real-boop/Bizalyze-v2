@@ -116,17 +116,17 @@ export default function LandingPage() {
   const retailPlans = [
     {
       id: "free",
-      title: "Free",
-      description: "Get started now",
-      price: "$0",
-      priceUnit: "/analysis",
-      buttonText: "Get Started",
+      title: "Subscription",
+      description: "For regular users",
+      price: "$tbd",
+      priceUnit: "/month",
+      buttonText: "Coming Soon",
       buttonVariant: "outline" as const,
       features: [
-        "1 analysis with preview report",
-        "Full report provided with account",
-        "No Credit Card required",
-        "Test with no strings attached"
+        "Unlimited analysis",
+        "Dashboard access",
+        "Off-market searches",
+        "Custom Due Diligence checklist"
       ]
     },
     {
