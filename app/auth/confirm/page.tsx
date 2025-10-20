@@ -220,7 +220,7 @@ function AuthConfirmPageContent() {
     }
   }, [tokenHash, type, redirectTo, router, accessToken])
 
-  // NEW: Function to request new confirmation email
+  // Function to request new confirmation email for expired links
   const handleRequestNewConfirmation = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !isValidEmail(email)) return
@@ -229,34 +229,28 @@ function AuthConfirmPageContent() {
     setSubmitError(null)
 
     try {
-      // Use the same API call as PaywallModal - we just need email and businessId
-      // For expired links, we don't have businessId, so we'll use a generic one
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          businessId: 'expired-link-recovery', // Generic ID for expired link recovery
-          path: 'pdf-only' // This will trigger the existing user flow
-        })
+      // Use Supabase directly to resend confirmation - NO business relationship needed
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        
-        // Check if this is an existing user error
-        if (errorData.error === 'USER_EXISTS_PDF_ONLY') {
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes('already confirmed') || error.message.includes('already registered')) {
           setIsExistingUser(true)
           setSubmitError(null)
           return
         }
-        
-        throw new Error(errorData.message || errorData.error || 'Failed to send confirmation email')
+        throw new Error(error.message)
       }
 
       setSubmitSuccess(true)
     } catch (err) {
-      console.error('Failed to request new confirmation:', err)
+      console.error('Failed to resend confirmation:', err)
       setSubmitError(err instanceof Error ? err.message : 'Failed to send confirmation email')
     } finally {
       setIsSubmitting(false)
@@ -606,7 +600,7 @@ function AuthConfirmPageContent() {
                 <CheckCircle className="w-6 h-6 text-primary" />
               </div>
               <p className="text-foreground">
-                You already have an activated account! Please log in to access your dashboard.
+                Your account is already confirmed! Please log in to access your dashboard.
               </p>
               <Button onClick={handleGoToLogin} className="w-full bg-primary hover:bg-primary/90">
                 Go to Login
