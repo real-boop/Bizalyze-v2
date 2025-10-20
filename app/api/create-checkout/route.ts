@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     console.log('Creating checkout for analysis:', analysisId);
 
     // Create checkout session with Polar (PRODUCTION URL)
-    const response = await fetch('https://api.polar.sh/v1/checkouts/', {
+    const response = await fetch('https://api.polar.sh/v1/checkouts/', 
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.POLAR_ACCESS_TOKEN}`,
