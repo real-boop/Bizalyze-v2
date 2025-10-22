@@ -224,6 +224,16 @@ function AuthConfirmPageContent() {
     // Only run if we have either tokenHash or accessToken
     if (tokenHash || accessToken) {
       handleConfirmation()
+    } else {
+      // No tokens found - redirect to landing page
+      console.log('No confirmation tokens found, redirecting to landing page')
+      setState('error')
+      setError('Invalid or expired confirmation link. Redirecting to home page...')
+      
+      // Redirect to landing page after a brief delay
+      setTimeout(() => {
+        router.push('/')
+      }, 3000)
     }
   }, [tokenHash, type, redirectTo, router, accessToken])
 
