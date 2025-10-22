@@ -206,7 +206,7 @@ function AuthConfirmPageContent() {
           setState('auto-login')
           // Auto-redirect after brief delay
           setTimeout(() => {
-            const finalRedirect = 'user/dashboard'
+            const finalRedirect = '/user/dashboard'
             console.log('Redirecting to:', finalRedirect)
             router.push(finalRedirect)
             setState('success')
