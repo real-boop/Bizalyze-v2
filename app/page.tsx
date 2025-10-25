@@ -517,7 +517,7 @@ export default function LandingPage() {
                   {/* Mobile Phone Mockup */}
                   <div className="absolute -bottom-12 sm:-bottom-8 -left-2 sm:-left-16 z-10 scale-75 sm:scale-100">
                     <div className="w-[140px] sm:w-[140px] h-[240px] sm:h-[280px] bg-gray-800 rounded-[20px] sm:rounded-[24px] p-1.5 sm:p-2 shadow-xl">
-                      <div className="w-full h-full bg-black rounded-[16px] sm:rounded-[20px] overflow-hidden relative">
+                      <div className="w-full h-full bg-white rounded-[16px] sm:rounded-[20px] overflow-hidden relative">
                         {/* Phone notch */}
                         <div className="absolute top-1.5 sm:top-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-3 sm:h-4 bg-gray-800 rounded-full z-10"></div>
                         <Image
@@ -887,7 +887,7 @@ export default function LandingPage() {
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Frequently Asked Questions</h2>
               <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                Have questions about our business valuation service? Check out our FAQ section for answers.
+                Do you have questions about our business valuation service? Check out our FAQ section for answers.
               </p>
             </motion.div>
 
@@ -968,7 +968,7 @@ export default function LandingPage() {
                 <AccordionTrigger>How does your pricing compare to traditional business appraisals?</AccordionTrigger>
                 <AccordionContent>
                   Traditional certified business appraisals cost $2,000-5,000 and take 2-3 weeks. Our professional-grade
-                  analysis delivers the same insights instantly for free (one analysis), $29 as pay-per-use or as a
+                  analysis delivers the same insights instantly for a fraction of the costs or as a
                   monthly subscription for heavy users (soon to come). Save thousands while getting faster, more
                   comprehensive analysis than expensive appraisers.
                 </AccordionContent>
