@@ -83,6 +83,7 @@ export function TestimonialCarousel() {
     >
       {/* Quote Section - Left on desktop, top on mobile */}
       <motion.div
+        key={`quote-section-${currentIndex}`}
         className="space-y-4 lg:space-y-6"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
