@@ -679,7 +679,7 @@ export default function LandingPage() {
             >
               <Link href="/start">
                 <Button size="lg" className="rounded-full h-12 px-8 text-base">
-                  Start Free Trial
+                  Try It Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
