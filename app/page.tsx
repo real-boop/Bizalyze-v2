@@ -61,12 +61,6 @@ export default function LandingPage() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Add this useEffect to force light mode on page load
-  useEffect(() => {
-    // Force light mode when landing page loads
-    setTheme("light")
-  }, [setTheme])
-
   const buyerSteps = [
     {
       step: "01",
@@ -543,7 +537,7 @@ export default function LandingPage() {
         </section>
 
                   {/* Social Proof Section */}
-          <section className="w-full py-10 bg-gray-50/50 overflow-hidden border-t border-b border-gray-200/70 overflow-hidden">
+          <section className="w-full py-10 bg-gray-50/50 dark:bg-muted/20 overflow-hidden border-t border-b border-gray-200/70 dark:border-muted/30 overflow-hidden">
             <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <p className="text-base font-medium text-gray-500">Works with:</p>
