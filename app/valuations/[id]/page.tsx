@@ -80,16 +80,16 @@ export default function ValuationPage() {
         const response = await fetch(`/api/valuations/${valuationId}`)
         const data = await response.json()
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch valuation')
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch valuation')
+      }
 
-        if (data.success && data.results) {
-          setResults(data.results)
-          setLeadData(data.leadData)
-        } else {
-          throw new Error('Invalid response from server')
-        }
+      if (data.success && data.results) {
+        setResults(data.results)
+        setLeadData(data.leadData || null)
+      } else {
+        throw new Error('Invalid response from server')
+      }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load valuation')
       } finally {
@@ -256,17 +256,17 @@ export default function ValuationPage() {
                 </p>
               </div>
 
-              {/* Results Component */}
-              <div className="w-full pt-16 pb-16">
-                <QuickValuationResults
-                  results={results}
-                  businessName={leadData.businessName}
-                  category={leadData.category}
-                  city={leadData.city}
-                  state={leadData.state}
-                  onSignUpClick={() => setAuthModalOpen(true)}
-                />
-              </div>
+            {/* Results Component */}
+            <div className="w-full pt-16 pb-16">
+              <QuickValuationResults
+                results={results}
+                businessName={leadData?.businessName || ''}
+                category={leadData?.category || ''}
+                city={leadData?.city || ''}
+                state={leadData?.state || ''}
+                onSignUpClick={() => setAuthModalOpen(true)}
+              />
+            </div>
             </>
           )}
         </BackgroundPaths>
