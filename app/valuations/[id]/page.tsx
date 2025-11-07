@@ -71,6 +71,7 @@ export default function ValuationPage() {
   const [results, setResults] = useState<any>(null)
   const [leadData, setLeadData] = useState<any>(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const fetchValuation = async () => {
@@ -108,6 +109,11 @@ export default function ValuationPage() {
 
     fetchValuation()
   }, [valuationId])
+
+  // Ensure component only renders after client-side hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <>
@@ -248,7 +254,7 @@ export default function ValuationPage() {
             </div>
           )}
 
-          {!loading && !error && results && leadData?.city && leadData?.state && (
+          {mounted && !loading && !error && results && leadData?.city && leadData?.state && (
             <>
               {/* Conversion Copy Section */}
               <div className="w-full max-w-4xl mx-auto pt-6 pb-12 px-4 md:px-6 space-y-6">
