@@ -110,17 +110,17 @@ export default function LandingPage() {
   const retailPlans = [
     {
       id: "free",
-      title: "Subscription",
-      description: "For regular users",
-      price: "$tbd",
-      priceUnit: "/month",
-      buttonText: "Coming Soon",
+      title: "Free Trial",
+      description: "Quick Valuation Analysis",
+      price: "free",
+      priceUnit: "",
+      buttonText: "Try Now",
       buttonVariant: "outline" as const,
       features: [
-        "Unlimited analysis",
-        "Dashboard access",
-        "Off-market searches",
-        "Custom Due Diligence checklist"
+        "Simple valuation",
+        "No credit card required",
+        "No strings attached",
+        "Immediate results"
       ]
     },
     {
@@ -350,7 +350,7 @@ export default function LandingPage() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
               {mounted && theme === "dark" ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
             </Button>
-            <Link href="/start">
+            <Link href="/valuations">
               <Button size="lg" className="rounded-full h-12 px-8 text-base">
                 {isAuthenticated ? 'Analyze New Business' : 'Get Started'}
                 <ChevronRight className="ml-1 size-4" />
@@ -415,7 +415,7 @@ export default function LandingPage() {
                 FAQ
               </Link>
               <div className="pt-4 border-t">
-                <Link href="/start">
+                <Link href="/valuations">
                   <Button size="lg" className="rounded-full h-12 px-8 text-base w-full">
                     {isAuthenticated ? 'Analyze New Business' : 'Get Started'}
                     <ChevronRight className="ml-1 size-4" />
@@ -452,7 +452,7 @@ export default function LandingPage() {
                   Independent. Smart. Fast.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/start">
+                  <Link href="/valuations">
                     <Button size="lg" className="rounded-full h-12 px-8 text-base">
                       Try It Now
                       <ArrowRight className="ml-2 size-4" />
@@ -671,7 +671,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12"
             >
-              <Link href="/start">
+              <Link href="/valuations">
                 <Button size="lg" className="rounded-full h-12 px-8 text-base">
                   Try It Now
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -755,7 +755,7 @@ export default function LandingPage() {
                 ))}
 
                 <div className="pt-4">
-                  <Link href="/start">
+                  <Link href="/valuations">
                     <Button size="lg" className="rounded-full h-12 px-8 text-base bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:from-blue-600 hover:to-teal-600">
                       {activeMode === "buyer" ? "Start Analysis" : "Get Valuation"}
                       <ArrowRight className="ml-2 size-4" />
