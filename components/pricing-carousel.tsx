@@ -123,6 +123,16 @@ const SwipeablePricingCard = ({
                 {plan.buttonText}
               </Button>
             </Link>
+          ) : plan.buttonText === "Try Now" ? (
+            <Link href="/valuations">
+              <Button
+                size="lg"
+                variant={plan.buttonVariant}
+                className="w-full mt-6 rounded-full h-12 px-8 text-base"
+              >
+                {plan.buttonText}
+              </Button>
+            </Link>
           ) : (
             <Button
               size="lg"
@@ -193,6 +203,16 @@ export function PricingCarousel({ plans, selectedPlan, onPlanSelect }: PricingCa
           </div>
           {plan.buttonText === "Get Started" ? (
             <Link href="/start">
+              <Button
+                size="lg"
+                variant={plan.buttonVariant}
+                className="w-full mt-6 rounded-full h-12 px-8 text-base"
+              >
+                {plan.buttonText}
+              </Button>
+            </Link>
+          ) : plan.buttonText === "Try Now" ? (
+            <Link href="/valuations">
               <Button
                 size="lg"
                 variant={plan.buttonVariant}
