@@ -83,14 +83,19 @@ export default function ValuationPage() {
       try {
         const response = await fetch(`/api/valuations/${valuationId}`)
         const data = await response.json()
+        
+        // Debug logging to see what API returns
+        console.log('API Response:', JSON.stringify(data, null, 2))
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch valuation')
       }
 
       if (data.success && data.results) {
+        console.log('leadData from API:', data.leadData)
         setResults(data.results)
-        setLeadData(data.leadData || null)
+        // Ensure leadData is a valid object before setting
+        setLeadData(data.leadData && typeof data.leadData === 'object' ? data.leadData : null)
       } else {
         throw new Error('Invalid response from server')
       }
@@ -243,7 +248,7 @@ export default function ValuationPage() {
             </div>
           )}
 
-          {!loading && !error && results && leadData && (
+          {!loading && !error && results && leadData?.city && leadData?.state && (
             <>
               {/* Conversion Copy Section */}
               <div className="w-full max-w-4xl mx-auto pt-6 pb-12 px-4 md:px-6 space-y-6">
