@@ -8,42 +8,42 @@ import { Button } from "@/components/ui/button"
 const testimonials = [
   {
     quote:
-      "My broker wanted over $1,000 to give me a price analysis. I now got the same results for $29.",
+      "My broker wanted over $1,000 to give me a price analysis. I now got the same results for $49.",
     author: "Laura",
     role: "Copy Shop, Seller",
     image: "/laura.png",
   },
   {
     quote:
-      "I have worked for over a decade in Commercial Real Estate. Bizalyze delivers professional results, at a fraction of the costs.",
+      "I have worked for over a decade in Commercial Real Estate. Bizfax delivers professional results, at a fraction of the costs.",
     author: "Jonny",
     role: "Real Estate Broker",
     image: "/jonny.png",
   },
   {
     quote:
-      "I've been looking for a Laundromat for months. Bizalyze saved me $50,000 when I finally found the right one.",
+      "I've been looking for a Laundromat for months. Bizfax saved me $50,000 when I finally found the right one.",
     author: "Sebastian",
     role: "Laundromat, Buyer",
     image: "/sebastian.png",
   },
   {
     quote:
-      "Over the last 10 years, I acquired multiple dry cleaning and laundromat businesses. Using Bizalyze saves me hours in research.",
+      "Over the last 10 years, I acquired multiple dry cleaning and laundromat businesses. Using Bizfax saves me hours in research.",
     author: "Matt",
     role: "Small Business Investor",
     image: "/matt.png",
   },
   {
     quote:
-      "Buying or selling a small business is a painful process. I was negotation-ready in 10 minutes with Bizalyze.",
+      "Buying or selling a small business is a painful process. I was negotation-ready in 10 minutes with Bizfax.",
     author: "Connie",
     role: "Restaurant Owner, Seller",
     image: "/connie.png",
   },
   {
     quote:
-      "I wish my broker was as fast and reliable as Bizalyze is.",
+      "I wish my broker was as fast and reliable as Bizfax is.",
     author: "Craig",
     role: "E-Commerce Shop, Seller",
     image: "/craig.png",
