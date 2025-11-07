@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { GoogleMapsEmbed } from "@/components/GoogleMapsEmbed"
 import { formatCurrency } from "@/app/dashboard/utils/formatCurrency"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -948,26 +947,6 @@ export function QuickValuationResults({
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Google Maps Embed */}
-      <Card className="transition-all hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600">
-        <CardHeader>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Nearby Businesses</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Explore similar businesses in your area
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="transition-all hover:shadow-lg rounded-lg">
-            <GoogleMapsEmbed
-              city={city}
-              state={state}
-              categoryTitle={category}
-              className="rounded-lg"
-            />
-          </div>
         </CardContent>
       </Card>
 
