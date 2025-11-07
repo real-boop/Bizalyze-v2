@@ -11,6 +11,10 @@ import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 import AuthModal from "@/components/AuthModal"
 
+// Force dynamic rendering - don't pre-render during build
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
 const TypewriterEffect = () => {
   const businessTypes = ["Full Demographics", "Location Details", "Detailed Comparables"]
   const [currentIndex, setCurrentIndex] = useState(0)
