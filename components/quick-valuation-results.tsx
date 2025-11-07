@@ -123,13 +123,13 @@ interface QuickValuationResultsProps {
 
 export function QuickValuationResults({
   results,
-  businessName,
-  category,
-  city,
-  state,
+  businessName = '',
+  category = '',
+  city = '',
+  state = '',
   onSignUpClick,
 }: QuickValuationResultsProps) {
-  const { valuations, benchmarks, calculatedMetrics } = results
+  const { valuations, benchmarks, calculatedMetrics } = results || {}
   const [notesExpanded, setNotesExpanded] = useState(false)
   const [valuationExpanded, setValuationExpanded] = useState(false)
 
