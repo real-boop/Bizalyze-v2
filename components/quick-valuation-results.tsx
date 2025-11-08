@@ -961,14 +961,19 @@ export function QuickValuationResults({
             </p>
           </CardHeader>
           <CardContent>
-            <div className="transition-all hover:shadow-lg rounded-lg">
-              <GoogleMapsEmbed
-                city={city}
-                state={state}
-                categoryTitle={category}
-                className="rounded-lg"
-              />
-            </div>
+            {city && state ? (
+              <div className="transition-all hover:shadow-lg rounded-lg">
+                <GoogleMapsEmbed
+                  locationData={{ state, city }}
+                  businessCategory={{ name: category, display_name: category }}
+                  className="rounded-lg"
+                />
+              </div>
+            ) : (
+              <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
+                Location data not available
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
