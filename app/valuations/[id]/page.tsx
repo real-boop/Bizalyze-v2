@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { QuickValuationResults } from "@/components/quick-valuation-results"
 import BackgroundPaths from "@/components/kokonutui/background-paths"
 import { NewNavBar } from "@/components/NewNavBar"
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 import AuthModal from "@/components/AuthModal"
+import { supabase } from "@/lib/supabase"
 
 // Force dynamic rendering - don't pre-render during build
 export const dynamic = 'force-dynamic'
@@ -65,6 +66,7 @@ const TypewriterEffect = () => {
 
 export default function ValuationPage() {
   const params = useParams()
+  const router = useRouter()
   const valuationId = params.id as string
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -72,6 +74,10 @@ export default function ValuationPage() {
   const [leadData, setLeadData] = useState<any>(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  
+  // Add authentication state
+  const [user, setUser] = useState<any>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
     const fetchValuation = async () => {
@@ -110,10 +116,49 @@ export default function ValuationPage() {
     fetchValuation()
   }, [valuationId])
 
+  // Check authentication on page load
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setIsAuthenticated(true)
+        setUser(session.user)
+      }
+    }
+    checkAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setIsAuthenticated(true)
+        setUser(session.user)
+      } else {
+        setIsAuthenticated(false)
+        setUser(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   // Ensure component only renders after client-side hydration
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Handle sign up click - check auth state first
+  const handleSignUpClick = async () => {
+    // Check current session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (session && session.user) {
+      // User is logged in - redirect to dashboard
+      router.push('/user/dashboard')
+    } else {
+      // User is not logged in - open sign up modal
+      setAuthModalOpen(true)
+    }
+  }
 
   return (
     <>
@@ -137,7 +182,7 @@ export default function ValuationPage() {
                     <TypewriterEffect />
                   </h1>
                   <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0 lg:max-w-none text-pretty">
-                  Get access to the same deep intelligence that advisors charge $2,000+. Insiders have fully customized reports specific to their business, location and target market.
+                  Get access to the same deep intelligence advisors charge $2,000+ for. Insiders have fully customized reports specific to their business, location and target market.
                   </p>
                   <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-4 mt-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
@@ -156,7 +201,7 @@ export default function ValuationPage() {
                   <div className="flex justify-center lg:justify-start mt-8">
                     <Button 
                       size="lg" 
-                      onClick={() => setAuthModalOpen(true)}
+                      onClick={handleSignUpClick}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-12 py-7 text-xl rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto lg:w-[464px] xl:w-[528px]"
                     >
                       Unlock Full Analysis
@@ -192,7 +237,7 @@ export default function ValuationPage() {
                     {/* Mobile Phone Mockup */}
                     <div className="absolute -bottom-12 sm:-bottom-8 -left-2 sm:-left-16 z-10 scale-75 sm:scale-100">
                       <div className="w-[140px] sm:w-[140px] h-[240px] sm:h-[280px] bg-gray-800 rounded-[20px] sm:rounded-[24px] p-1.5 sm:p-2 shadow-xl">
-                        <div className="w-full h-full bg-black rounded-[16px] sm:rounded-[20px] overflow-hidden relative">
+                        <div className="w-full h-full bg-white rounded-[16px] sm:rounded-[20px] overflow-hidden relative">
                           {/* Phone notch */}
                           <div className="absolute top-1.5 sm:top-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-3 sm:h-4 bg-gray-800 rounded-full z-10"></div>
                           <img
@@ -263,7 +308,7 @@ export default function ValuationPage() {
                 </p>
                 
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground text-center text-pretty">
-                  The below industry averages below are a starting point - but your business isn't average.
+                  Industry averages are a starting point - but your business isn't average.
                 </p>
                 
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground text-center text-pretty">
@@ -279,7 +324,7 @@ export default function ValuationPage() {
                 category={leadData?.category || ''}
                 city={leadData?.city || ''}
                 state={leadData?.state || ''}
-                onSignUpClick={() => setAuthModalOpen(true)}
+                onSignUpClick={handleSignUpClick}
               />
             </div>
             </>
