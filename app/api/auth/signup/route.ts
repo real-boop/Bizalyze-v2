@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       // Handle password reset request
       if (path === 'password-reset') {
         await supabaseAuth.auth.resetPasswordForEmail(email, {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/change-password`
         })
         
         return NextResponse.json({ 
