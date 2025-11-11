@@ -403,147 +403,149 @@ export function QuickValuationResults({
             {/* Performance Benchmarks Table */}
             <div className="mb-8">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Your Business vs Category Averages</h4>
-              <div className="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300">Metric</th>
-                      <th className="px-3 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">You</th>
-                      <th className="px-3 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">Market Avg.</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">Result</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                    {/* Revenue Row */}
-                    <tr className="bg-white dark:bg-gray-900">
-                      <td className="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">Revenue</td>
-                      <td className="px-3 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                        {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.revenue?.userValue || 0)}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-gray-600 dark:text-gray-400 text-center">
-                        {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.revenue?.categoryMedian || 0)}
-                      </td>
-                      <td className="px-6 py-3 text-center">
-                        {(() => {
-                          const ratio = calculatedMetrics.performanceRatings?.revenue?.ratio || 0
-                          const deviation = (ratio - 1) * 100
-                          const isPositive = deviation >= 0
-                          const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
-                          
-                          let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
-                          if (ratio >= 1.1) {
-                            pillColor = 'bg-green-100 text-green-700 border-green-300'
-                          } else if (ratio < 0.9) {
-                            pillColor = 'bg-red-100 text-red-700 border-red-300'
-                          } else {
-                            pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                          }
-                          
-                          return (
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
-                              {displayValue}
-                            </span>
-                          )
-                        })()}
-                      </td>
-                    </tr>
-                    
-                    {/* Cash Flow Row */}
-                    <tr className="bg-gray-50 dark:bg-gray-800">
-                      <td className="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">Cash Flow</td>
-                      <td className="px-3 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                        {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.cashflow?.userValue || 0)}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-gray-600 dark:text-gray-400 text-center">
-                        {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.cashflow?.categoryMedian || 0)}
-                      </td>
-                      <td className="px-6 py-3 text-center">
-                        {(() => {
-                          const ratio = calculatedMetrics.performanceRatings?.cashflow?.ratio || 0
-                          const deviation = (ratio - 1) * 100
-                          const isPositive = deviation >= 0
-                          const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
-                          
-                          let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
-                          if (ratio >= 1.1) {
-                            pillColor = 'bg-green-100 text-green-700 border-green-300'
-                          } else if (ratio < 0.9) {
-                            pillColor = 'bg-red-100 text-red-700 border-red-300'
-                          } else {
-                            pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                          }
-                          
-                          return (
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
-                              {displayValue}
-                            </span>
-                          )
-                        })()}
-                      </td>
-                    </tr>
-                    
-                    {/* Margin Row */}
-                    <tr className="bg-white dark:bg-gray-900">
-                      <td className="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">Margin</td>
-                      <td className="px-3 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                        {calculatedMetrics.performanceRatings?.margin?.userMargin?.toFixed(1) || 'N/A'}%
-                      </td>
-                      <td className="px-3 py-3 text-sm text-gray-600 dark:text-gray-400 text-center">
-                        {calculatedMetrics.performanceRatings?.margin?.categoryMargin?.toFixed(1) || 'N/A'}%
-                      </td>
-                      <td className="px-6 py-3 text-center">
-                        {(() => {
-                          const ratio = calculatedMetrics.performanceRatings?.margin?.ratio || 0
-                          const deviation = (ratio - 1) * 100
-                          const isPositive = deviation >= 0
-                          const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
-                          
-                          let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
-                          if (ratio >= 1.1) {
-                            pillColor = 'bg-green-100 text-green-700 border-green-300'
-                          } else if (ratio < 0.9) {
-                            pillColor = 'bg-red-100 text-red-700 border-red-300'
-                          } else {
-                            pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                          }
-                          
-                          return (
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
-                              {displayValue}
-                            </span>
-                          )
-                        })()}
-                      </td>
-                    </tr>
-                    
-                    {/* Overall Result Row */}
-                    <tr className="bg-gray-200 dark:bg-gray-600 border-t-2 border-gray-300 dark:border-gray-600">
-                      <td className="px-6 py-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Overall</td>
-                      <td colSpan={2} className="px-3 py-3"></td>
-                      <td className="px-6 py-3 text-center">
-                        {(() => {
-                          const tier = calculatedMetrics.suggestedTier?.tier || 'AVERAGE'
-                          let label = 'AVERAGE'
-                          let pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                          
-                          if (tier === "PREMIUM") {
-                            label = 'STRONG'
-                            pillColor = 'bg-green-100 text-green-700 border-green-300'
-                          } else if (tier === "BELOW_AVERAGE") {
-                            label = 'FAIR'
-                            pillColor = 'bg-red-100 text-red-700 border-red-300'
-                          }
-                          
-                          return (
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
-                              {label}
-                            </span>
-                          )
-                        })()}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="overflow-x-auto">
+                <div className="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                          <th className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300">Metric</th>
+                          <th className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">You</th>
+                          <th className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">Market Avg.</th>
+                          <th className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300">Result</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        {/* Revenue Row */}
+                        <tr className="bg-white dark:bg-gray-900">
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100">Revenue</td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100 text-center">
+                            {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.revenue?.userValue || 0)}
+                          </td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                            {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.revenue?.categoryMedian || 0)}
+                          </td>
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-center">
+                            {(() => {
+                              const ratio = calculatedMetrics.performanceRatings?.revenue?.ratio || 0
+                              const deviation = (ratio - 1) * 100
+                              const isPositive = deviation >= 0
+                              const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
+                              
+                              let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
+                              if (ratio >= 1.1) {
+                                pillColor = 'bg-green-100 text-green-700 border-green-300'
+                              } else if (ratio < 0.9) {
+                                pillColor = 'bg-red-100 text-red-700 border-red-300'
+                              } else {
+                                pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                              }
+                              
+                              return (
+                                <span className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
+                                  {displayValue}
+                                </span>
+                              )
+                            })()}
+                          </td>
+                        </tr>
+                        
+                        {/* Cash Flow Row */}
+                        <tr className="bg-gray-50 dark:bg-gray-800">
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100">Cash Flow</td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100 text-center">
+                            {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.cashflow?.userValue || 0)}
+                          </td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                            {formatCurrencyAbbreviated(calculatedMetrics.performanceRatings?.cashflow?.categoryMedian || 0)}
+                          </td>
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-center">
+                            {(() => {
+                              const ratio = calculatedMetrics.performanceRatings?.cashflow?.ratio || 0
+                              const deviation = (ratio - 1) * 100
+                              const isPositive = deviation >= 0
+                              const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
+                              
+                              let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
+                              if (ratio >= 1.1) {
+                                pillColor = 'bg-green-100 text-green-700 border-green-300'
+                              } else if (ratio < 0.9) {
+                                pillColor = 'bg-red-100 text-red-700 border-red-300'
+                              } else {
+                                pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                              }
+                              
+                              return (
+                                <span className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
+                                  {displayValue}
+                                </span>
+                              )
+                            })()}
+                          </td>
+                        </tr>
+                        
+                        {/* Margin Row */}
+                        <tr className="bg-white dark:bg-gray-900">
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100">Margin</td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 dark:text-gray-100 text-center">
+                            {calculatedMetrics.performanceRatings?.margin?.userMargin?.toFixed(1) || 'N/A'}%
+                          </td>
+                          <td className="px-1 sm:px-2 md:px-3 py-2 sm:py-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                            {calculatedMetrics.performanceRatings?.margin?.categoryMargin?.toFixed(1) || 'N/A'}%
+                          </td>
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-center">
+                            {(() => {
+                              const ratio = calculatedMetrics.performanceRatings?.margin?.ratio || 0
+                              const deviation = (ratio - 1) * 100
+                              const isPositive = deviation >= 0
+                              const displayValue = `${isPositive ? '+' : ''}${deviation.toFixed(1)}%`
+                              
+                              let pillColor = 'bg-gray-100 text-gray-700 border-gray-300'
+                              if (ratio >= 1.1) {
+                                pillColor = 'bg-green-100 text-green-700 border-green-300'
+                              } else if (ratio < 0.9) {
+                                pillColor = 'bg-red-100 text-red-700 border-red-300'
+                              } else {
+                                pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                              }
+                              
+                              return (
+                                <span className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
+                                  {displayValue}
+                                </span>
+                              )
+                            })()}
+                          </td>
+                        </tr>
+                        
+                        {/* Overall Result Row */}
+                        <tr className="bg-gray-200 dark:bg-gray-600 border-t-2 border-gray-300 dark:border-gray-600">
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">Overall</td>
+                          <td colSpan={2} className="px-1 sm:px-2 md:px-3 py-2 sm:py-3"></td>
+                          <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-center">
+                            {(() => {
+                              const tier = calculatedMetrics.suggestedTier?.tier || 'AVERAGE'
+                              let label = 'AVERAGE'
+                              let pillColor = 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                              
+                              if (tier === "PREMIUM") {
+                                label = 'STRONG'
+                                pillColor = 'bg-green-100 text-green-700 border-green-300'
+                              } else if (tier === "BELOW_AVERAGE") {
+                                label = 'FAIR'
+                                pillColor = 'bg-red-100 text-red-700 border-red-300'
+                              }
+                              
+                              return (
+                                <span className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${pillColor}`}>
+                                  {label}
+                                </span>
+                              )
+                            })()}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
               </div>
             </div>
 
@@ -876,7 +878,7 @@ export function QuickValuationResults({
 
             {/* Market Trend */}
             <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Market Trend</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Market Forecasts</div>
               <div className="flex items-center justify-center mb-4">
                 {(() => {
                   const gaugeState = getMarketTrendState()
@@ -907,12 +909,12 @@ export function QuickValuationResults({
                     background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%)`
                   }}
                 />
-                <div className="relative z-10">
+                <div className="relative z-10 text-gray-900">
                   <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="text-base font-semibold text-gray-900 dark:text-gray-800">Market Intelligence</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-700 mt-1">
+                        <h4 className="text-base font-semibold">Market Intelligence</h4>
+                        <p className="text-sm mt-1 opacity-90">
                           Insights for {category}
                         </p>
                       </div>
@@ -920,7 +922,7 @@ export function QuickValuationResults({
                         variant="ghost"
                         size="sm"
                         onClick={() => setNotesExpanded(!notesExpanded)}
-                        className="flex items-center gap-1 text-gray-700 dark:text-gray-800 hover:text-white dark:hover:text-white"
+                        className="flex items-center gap-1 ml-4"
                       >
                         {notesExpanded ? (
                           <>
@@ -938,7 +940,7 @@ export function QuickValuationResults({
                   </div>
                   {notesExpanded && (
                     <div className="p-4">
-                      <div className="prose prose-sm max-w-none text-sm text-gray-600 dark:text-gray-800 whitespace-pre-wrap">
+                      <div className="prose prose-sm max-w-none text-sm opacity-90 whitespace-pre-wrap">
                         {benchmarks.notes}
                       </div>
                     </div>
