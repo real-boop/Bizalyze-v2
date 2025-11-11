@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
 import { fetchValuationCategories, type ValuationCategory } from "@/lib/valuation-utils"
 import { US_STATES } from "@/lib/us-states"
+import { supabase } from "@/lib/supabase"
 
 // Email validation helper
 function isValidEmail(email: string): boolean {
@@ -128,6 +129,12 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
   // Email validation
   const [emailError, setEmailError] = useState<string>("")
 
+  // Track if user is logged in (to disable email field)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Track if we've attempted to auto-populate email
+  const emailPopulatedRef = useRef(false)
+
   // Fetch categories on mount
   useEffect(() => {
     const loadCategories = async () => {
@@ -143,6 +150,38 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
       }
     }
     loadCategories()
+  }, [])
+
+  // Auto-populate email if user is logged in
+  useEffect(() => {
+    const getUserEmail = async () => {
+      // Only attempt once on mount
+      if (emailPopulatedRef.current) return
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user?.email) {
+          setIsLoggedIn(true)
+          // Only auto-populate if email field is empty
+          setEmail(prevEmail => {
+            if (!prevEmail && session.user?.email) {
+              emailPopulatedRef.current = true
+              return session.user.email
+            }
+            return prevEmail
+          })
+        } else {
+          setIsLoggedIn(false)
+        }
+        emailPopulatedRef.current = true
+      } catch (err) {
+        console.error('Failed to get user email:', err)
+        // Silently fail - don't show error to user
+        setIsLoggedIn(false)
+        emailPopulatedRef.current = true
+      }
+    }
+    getUserEmail()
   }, [])
 
   // Email validation on change
@@ -253,14 +292,14 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
       transition={{ duration: 0.5, delay: 0.5 }}
       className="w-full max-w-2xl lg:max-w-4xl mx-auto"
     >
-      <Card className="w-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:ring-2 hover:ring-blue-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:shadow-lg">
+      <Card className="w-full transition-all hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600">
         <CardContent className="pt-6 pb-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Business Category */}
             <div>
               <label className="block font-semibold mb-1 text-sm sm:text-base">Business Category *</label>
               <select
-                className="w-full bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm disabled:opacity-50 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                className="w-full bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm disabled:opacity-50 transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 required
@@ -285,7 +324,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                 placeholder="Enter business name"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                 required
                 disabled={isSubmitting}
               />
@@ -295,7 +334,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
             <div>
               <label className="block font-semibold mb-1 text-sm sm:text-base mt-4">State *</label>
               <select
-                className="w-full bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm disabled:opacity-50 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                className="w-full bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm disabled:opacity-50 transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 required
@@ -318,7 +357,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                 placeholder="Enter city name"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                 required
                 disabled={isSubmitting}
               />
@@ -337,7 +376,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                     const formatted = formatCurrencyInput(e.target.value)
                     setRevenue(formatted)
                   }}
-                  className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 pl-8 pr-4 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                  className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 pl-8 pr-4 text-sm transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                   required
                   disabled={isSubmitting}
                 />
@@ -357,7 +396,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                     const formatted = formatCurrencyInput(e.target.value)
                     setSde(formatted)
                   }}
-                  className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 pl-8 pr-4 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                  className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 pl-8 pr-4 text-sm transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                   required
                   disabled={isSubmitting}
                 />
@@ -371,7 +410,7 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                 placeholder="Add any additional details about your business - think of: lease terms, equipment age, operational details, etc...."
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
-                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm resize-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
+                className="bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm resize-none transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600"
                 rows={4}
                 disabled={isSubmitting}
                 maxLength={5000}
@@ -389,12 +428,17 @@ export function QuickValuationForm({}: QuickValuationFormProps) {
                 placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600 ${
-                  emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
-                }`}
+                className={`bg-white/95 dark:bg-black/95 border border-gray-200 dark:border-gray-700 rounded-xl h-12 px-4 text-sm transition-all duration-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none hover:border-gray-300 dark:hover:border-gray-600 ${
+                  emailError ? 'border-red-500 focus:border-red-500' : ''
+                } ${isLoggedIn ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed' : ''}`}
                 required
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoggedIn}
               />
+              {isLoggedIn && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Using your account email address
+                </p>
+              )}
               {emailError && (
                 <div className="text-red-500 text-sm mt-1">{emailError}</div>
               )}
