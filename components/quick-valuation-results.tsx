@@ -1013,7 +1013,7 @@ export function QuickValuationResults({
               onClick={onSignUpClick}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-12 py-7 text-xl rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto lg:w-[464px] xl:w-[528px]"
             >
-              Unlock Full Analysis
+              Unlock Access
             </Button>
           ) : (
             <Link href="/start">
@@ -1021,7 +1021,7 @@ export function QuickValuationResults({
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-12 py-7 text-xl rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto lg:w-[464px] xl:w-[528px]"
               >
-                Unlock Full Analysis
+                Unlock Access
               </Button>
             </Link>
           )}
