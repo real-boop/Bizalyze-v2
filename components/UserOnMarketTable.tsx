@@ -199,6 +199,7 @@ export function UserOnMarketTable({
             variant="outline"
             size="sm"
             onClick={() => onViewDashboard(row.original)}
+            className="text-xs sm:text-sm"
           >
             Dashboard
           </Button>
@@ -206,6 +207,7 @@ export function UserOnMarketTable({
             variant="ghost"
             size="sm"
             onClick={() => onBookmark(row.original)}
+            className="text-xs sm:text-sm"
           >
             <Bookmark className={`h-4 w-4 ${row.original.bookmarked ? "fill-yellow-400 text-yellow-400" : ""}`} />
           </Button>
@@ -216,6 +218,7 @@ export function UserOnMarketTable({
               // Placeholder for checklist functionality
               console.log("Checklist clicked for:", row.original.title)
             }}
+            className="text-xs sm:text-sm"
           >
             Checklist
           </Button>
@@ -242,14 +245,14 @@ export function UserOnMarketTable({
 
   return (
     <div className="space-y-4">
-      {/* Analyze New Business Button */}
-      <div className="flex justify-end">
+      {/* New Analysis Button */}
+      <div className="flex justify-end sm:justify-end">
         <Button 
           size="lg" 
-          className="rounded-full h-12 px-8 text-base"
+          className="rounded-full h-12 px-8 text-base w-full sm:w-auto"
           onClick={onAnalyzeNew}
         >
-          Analyze New Business
+          New Analysis
           <ChevronRight className="ml-1 size-4" />
         </Button>
       </div>
@@ -260,22 +263,22 @@ export function UserOnMarketTable({
             placeholder="Search all columns..."
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="max-w-lg"
+            className="max-w-lg text-xs sm:text-sm"
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm">Show only bookmarked</span>
+          <span className="text-xs">Show only bookmarked</span>
           <Switch checked={showBookmarked} onCheckedChange={setShowBookmarked} />
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-4 gap-y-2 pb-2">
         <div className="flex items-center gap-2 flex-wrap">
           <Checkbox checked={filterByPrice} onCheckedChange={checked => setFilterByPrice(checked === true)} id="price-filter" />
-          <label htmlFor="price-filter" className="text-sm">Filter by price</label>
+          <label htmlFor="price-filter" className="text-xs">Filter by price</label>
           {filterByPrice && (
             <>
               <Select value={minPrice} onValueChange={setMinPrice}>
-                <SelectTrigger className="w-full sm:w-28 h-8">
+                <SelectTrigger className="w-full sm:w-28 h-8 text-xs sm:text-sm">
                   <SelectValue placeholder="Min price" />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,9 +288,9 @@ export function UserOnMarketTable({
                   ))}
                 </SelectContent>
               </Select>
-              <span className="mx-1">to</span>
+              <span className="mx-1 text-xs">to</span>
               <Select value={maxPrice} onValueChange={setMaxPrice}>
-                <SelectTrigger className="w-full sm:w-28 h-8">
+                <SelectTrigger className="w-full sm:w-28 h-8 text-xs sm:text-sm">
                   <SelectValue placeholder="Max price" />
                 </SelectTrigger>
                 <SelectContent>
@@ -306,7 +309,7 @@ export function UserOnMarketTable({
         <div className="flex items-center gap-2">
           <span className="text-xs">Results per page:</span>
           <Select value={String(table.getState().pagination.pageSize)} onValueChange={v => table.setPageSize(Number(v))}>
-            <SelectTrigger className="w-20 h-8">
+            <SelectTrigger className="w-20 h-8 text-xs sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -319,12 +322,12 @@ export function UserOnMarketTable({
       </div>
       <div className="space-y-4">
         <div className="rounded-md border">
-          <Table>
+          <Table className="text-xs sm:text-sm">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-xs sm:text-sm">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -345,7 +348,7 @@ export function UserOnMarketTable({
                     className={row.original.contacted ? "bg-green-50" : ""}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className={cell.column.id === 'link' ? 'text-left w-12' : ['checked'].includes(cell.column.id) ? 'text-left' : ''}>
+                      <TableCell key={cell.id} className={`text-xs sm:text-sm ${cell.column.id === 'link' ? 'text-left w-12' : ['checked'].includes(cell.column.id) ? 'text-left' : ''}`}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -358,7 +361,7 @@ export function UserOnMarketTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center text-xs sm:text-sm"
                   >
                     No results.
                   </TableCell>
@@ -377,7 +380,7 @@ export function UserOnMarketTable({
                     variant={table.getState().pagination.pageIndex === i ? "default" : "outline"}
                     size="sm"
                     onClick={() => table.setPageIndex(i)}
-                    className="px-3"
+                    className="px-3 text-xs sm:text-sm"
                   >
                     {i + 1}
                   </Button>
@@ -391,6 +394,7 @@ export function UserOnMarketTable({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              className="text-xs sm:text-sm"
             >
               Previous
             </Button>
@@ -399,6 +403,7 @@ export function UserOnMarketTable({
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              className="text-xs sm:text-sm"
             >
               Next
             </Button>
