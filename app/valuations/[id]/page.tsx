@@ -55,7 +55,7 @@ const TypewriterEffect = () => {
 
   return (
     <span>
-      Join the Insider Club:<br />
+      Join the Insiders:<br />
       <span className="bg-gradient-to-r from-blue-500 to-teal-500 bg-clip-text text-transparent">
         {currentText}
         <span className="animate-pulse">|</span>
@@ -204,7 +204,7 @@ export default function ValuationPage() {
                       onClick={handleSignUpClick}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-12 py-7 text-xl rounded-full shadow-lg hover:shadow-xl transition-all w-full sm:w-auto lg:w-[464px] xl:w-[528px]"
                     >
-                      Unlock Full Analysis
+                      Unlock Access
                     </Button>
                   </div>
                 </motion.div>
