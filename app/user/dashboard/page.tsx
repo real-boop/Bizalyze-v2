@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { BarChart3, Building, Menu, MapPin, Loader2, CheckCircle2, Home, Search } from "lucide-react"
+import { BarChart3, Building, Menu, MapPin, Loader2, CheckCircle2, Home, Search, Calculator } from "lucide-react"
 import OffMarketTab from "./OffMarketTab"
 import OnMarketTab from "./OnMarketTab"
+import BasicValuationsTab from "./BasicValuationsTab"
 import { UserDashLoader } from "./UserDashLoader"
 import { supabase } from "@/lib/supabase"
 import UserMenu from "@/components/UserMenu"
@@ -12,7 +13,7 @@ import { useTheme } from "next-themes"
 
 const UserDashboardPage = () => {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState("on-market")
+  const [activeTab, setActiveTab] = useState("basic-valuations")
   const headerRef = useRef<HTMLDivElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -239,7 +240,31 @@ const UserDashboardPage = () => {
         {/* Tabs Navigation */}
         <div className="border-b border-gray-200">
           <div className="max-w-7xl">
-            <nav className="grid grid-cols-2 w-full">
+            <nav className="grid grid-cols-3 w-full">
+              <button
+                className={`py-4 px-2 sm:px-6 text-sm font-medium transition-colors relative ${activeTab === "basic-valuations" ? "text-blue-600" : "text-gray-600 hover:text-gray-900"}`}
+                aria-label="Basic"
+                onClick={() => setActiveTab("basic-valuations")}
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start">
+                  <Calculator className={`w-5 h-5 sm:mr-2 ${activeTab === "basic-valuations" ? "text-blue-600" : "text-gray-400"}`} />
+                  <span className="hidden sm:inline">Basic</span>
+                  <span className="text-[10px] mt-1 sm:hidden">Basic</span>
+                </div>
+                {activeTab === "basic-valuations" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>}
+              </button>
+              <button
+                className={`py-4 px-2 sm:px-6 text-sm font-medium transition-colors relative ${activeTab === "on-market" ? "text-blue-600" : "text-gray-600 hover:text-gray-900"}`}
+                aria-label="Premium"
+                onClick={() => setActiveTab("on-market")}
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start">
+                  <BarChart3 className={`w-5 h-5 sm:mr-2 ${activeTab === "on-market" ? "text-blue-600" : "text-gray-400"}`} />
+                  <span className="hidden sm:inline">Premium</span>
+                  <span className="text-[10px] mt-1 sm:hidden">Premium</span>
+                </div>
+                {activeTab === "on-market" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>}
+              </button>
               <button
                 className={`py-4 px-2 sm:px-6 text-sm font-medium transition-colors relative ${activeTab === "off-market" ? "text-blue-600" : "text-gray-600 hover:text-gray-900"}`}
                 aria-label="Off-market"
@@ -252,27 +277,26 @@ const UserDashboardPage = () => {
                 </div>
                 {activeTab === "off-market" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>}
               </button>
-              <button
-                className={`py-4 px-2 sm:px-6 text-sm font-medium transition-colors relative ${activeTab === "on-market" ? "text-blue-600" : "text-gray-600 hover:text-gray-900"}`}
-                aria-label="On-market"
-                onClick={() => setActiveTab("on-market")}
-              >
-                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start">
-                  <BarChart3 className={`w-5 h-5 sm:mr-2 ${activeTab === "on-market" ? "text-blue-600" : "text-gray-400"}`} />
-                  <span className="hidden sm:inline">On-market</span>
-                  <span className="text-[10px] mt-1 sm:hidden">On</span>
-                </div>
-                {activeTab === "on-market" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>}
-              </button>
             </nav>
           </div>
         </div>
       </div>
       {/* Tab Content */}
       <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        {activeTab === "off-market" ? (
-          <OffMarketTab userId={user.id} onDataReady={() => setDataReady(true)} />
-        ) : (
+        {activeTab === "basic-valuations" ? (
+          <BasicValuationsTab 
+            userId={user.id} 
+            onDataReady={() => setDataReady(true)} 
+            paymentSuccess={paymentSuccess}
+            paymentCheckoutId={paymentCheckoutId}
+            autoOpenModal={autoOpenModal}
+            onPaymentSuccessHandled={() => {
+              setPaymentSuccess(false);
+              setPaymentCheckoutId(null);
+              setAutoOpenModal(false); // Reset auto-open state
+            }}
+          />
+        ) : activeTab === "on-market" ? (
           <OnMarketTab 
             userId={user.id} 
             onDataReady={() => setDataReady(true)} 
@@ -285,6 +309,8 @@ const UserDashboardPage = () => {
               setAutoOpenModal(false); // Reset auto-open state
             }}
           />
+        ) : (
+          <OffMarketTab userId={user.id} onDataReady={() => setDataReady(true)} />
         )}
       </div>
     </div>
