@@ -90,16 +90,12 @@ export default function ValuationPage() {
       try {
         const response = await fetch(`/api/valuations/${valuationId}`)
         const data = await response.json()
-        
-        // Debug logging to see what API returns
-        console.log('API Response:', JSON.stringify(data, null, 2))
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch valuation')
       }
 
       if (data.success && data.results) {
-        console.log('leadData from API:', data.leadData)
         setResults(data.results)
         // Ensure leadData is a valid object before setting
         setLeadData(data.leadData && typeof data.leadData === 'object' ? data.leadData : null)
