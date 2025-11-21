@@ -9,9 +9,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Supabase admin client is not configured." }, { status: 500 });
   }
   try {
-    const { categoryId, listingUrl, listingText, businessId, checkoutId, userId, email } = await request.json();
+    const { categoryId, listingUrl, listingText, businessId, checkoutId, userId, email, state, city } = await request.json();
     
-    // Handle dashboard retry (businessId provided)
+    // Handle dashboard retry OR pre-validated business (businessId provided)
     if (businessId) {
       const { data: existingBusiness, error: findError } = await supabaseAdmin
         .from('businesses')
@@ -21,6 +21,102 @@ export async function POST(request: Request) {
       
       if (findError || !existingBusiness) {
         return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+      }
+      
+      // Check if this is a pre-validated business (step1 already completed)
+      const isPreValidated = existingBusiness.step1_status === 'completed';
+      
+      // Link user_businesses record if payment info provided (for pre-validated businesses)
+      if (isPreValidated && (checkoutId || email)) {
+        console.log('[Analysis] Pre-validated business detected, linking payment...');
+        
+        if (checkoutId && checkoutId.startsWith('disabled-payment-')) {
+          // Payment bypass: update by business_id + email
+          console.log('[Analysis] Payment bypass detected, updating by business_id + email');
+          
+          const { data: updateData, error } = await supabaseAdmin
+            .from('user_businesses')
+            .update({ 
+              status: 'analysis_running',
+              payment_type: 'paid',
+              polar_checkout_id: checkoutId
+            })
+            .eq('business_id', businessId)
+            .eq('user_email', email.toLowerCase())
+            .select();
+          
+          if (error) {
+            console.error('[Analysis] Error updating bypass payment:', error);
+          } else if (updateData && updateData.length > 0) {
+            console.log('[Analysis] ✅ Updated bypass payment:', updateData);
+          } else {
+            console.log('[Analysis] ⚠️ No record found for bypass payment');
+          }
+        } else if (checkoutId) {
+          // Normal payment: Try by business_id + polar_checkout_id first (webhook already ran)
+          console.log('[Analysis] Normal payment detected, attempting to update status...');
+          
+          let updateData = null;
+          let updateError = null;
+          
+          const { data: data1, error: error1 } = await supabaseAdmin
+            .from('user_businesses')
+            .update({ status: 'analysis_running' })
+            .eq('business_id', businessId)
+            .eq('polar_checkout_id', checkoutId)
+            .select();
+          
+          updateData = data1;
+          updateError = error1;
+          
+          // Fallback: If webhook hasn't run yet, update by business_id + email
+          // (We'll set polar_checkout_id ourselves, but webhook will overwrite it later - that's fine)
+          if (!updateData || updateData.length === 0) {
+            console.log('[Analysis] ⚠️ Webhook not processed yet, updating by business_id + email');
+            
+            const { data: data2, error: error2 } = await supabaseAdmin
+              .from('user_businesses')
+              .update({ 
+                status: 'analysis_running',
+                polar_checkout_id: checkoutId  // Set it ourselves (webhook will verify later)
+              })
+              .eq('business_id', businessId)
+              .eq('user_email', email.toLowerCase())
+              .eq('payment_type', 'pending')  // Only update if still pending
+              .select();
+            
+            updateData = data2;
+            updateError = error2;
+          }
+          
+          if (updateError) {
+            console.error('[Analysis] Error updating status:', updateError);
+          } else if (updateData && updateData.length > 0) {
+            console.log('[Analysis] ✅ Updated status:', updateData);
+          } else {
+            console.log('[Analysis] ⚠️ No record found');
+          }
+        } else if (email) {
+          // No checkoutId, link by business_id + email
+          console.log('[Analysis] No checkoutId, updating by business_id + email');
+          
+          const { data: updateData, error: linkError } = await supabaseAdmin
+            .from('user_businesses')
+            .update({ 
+              status: 'analysis_running'
+            })
+            .eq('business_id', businessId)
+            .eq('user_email', email.toLowerCase())
+            .select();
+          
+          if (linkError) {
+            console.error('[Analysis] Error updating by email:', linkError);
+          } else if (updateData && updateData.length > 0) {
+            console.log('[Analysis] ✅ Updated by email:', updateData);
+          } else {
+            console.log('[Analysis] ⚠️ No record found');
+          }
+        }
       }
       
       // Use existing business data for retry logic
@@ -45,20 +141,25 @@ export async function POST(request: Request) {
       }
       
       // Trigger appropriate step
+      // For pre-validated businesses: skip step1, start at step2
       const firstIncomplete = (['step1_status', 'step2_status', 'step3_status', 'step4_status', 'step5_status'] as const)
         .find((step) => statuses[step] !== 'completed');
 
-      if (firstIncomplete === 'step1_status') {
+      if (firstIncomplete === 'step1_status' && !isPreValidated) {
+        // Only trigger step1 if NOT pre-validated (retry case)
+        console.log('[Analysis] Triggering step1 (retry case)');
         fetch(`${baseUrl}/api/analysis/step1-data-cleaning`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ businessId, listingText: existingBusiness.listing_text })
         }).then(response => {
-          console.log('[Analysis] Step1 triggered, status:', response.status);
+          console.log('[Analysis] Step1 triggered (retry), status:', response.status);
         }).catch(error => {
           console.error('[Analysis] Step1 trigger failed:', error);
         });
       } else if (firstIncomplete === 'step2_status') {
+        // Trigger step2 (first time for pre-validated, or retry)
+        console.log('[Analysis] Triggering step2 (pre-validated or retry)');
         fetch(`${baseUrl}/api/analysis/step2-location-data`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -82,8 +183,16 @@ export async function POST(request: Request) {
     }
    
     // Original form submission logic
-    if (!categoryId || !listingUrl || !listingText) {
+    // listingUrl is optional for private listings (virtual URLs start with internal://offmarket)
+    if (!categoryId || !listingText) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+    
+    // For private listings, listingUrl might be a virtual URL - that's fine
+    // For public listings, listingUrl should be provided
+    const isVirtualUrl = listingUrl && listingUrl.startsWith('internal://offmarket');
+    if (!isVirtualUrl && !listingUrl) {
+      return NextResponse.json({ error: "Listing URL is required for public listings" }, { status: 400 });
     }
 
     // 1. Check for existing business by listing URL
@@ -239,15 +348,47 @@ export async function POST(request: Request) {
 
       // Trigger the appropriate step
       if (firstIncomplete === 'step1_status') {
-        fetch(`${baseUrl}/api/analysis/step1-data-cleaning`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ businessId: business_id, listingText })
-        }).then(response => {
-          console.log('[Analysis] Step1 triggered, status:', response.status);
-        }).catch(error => {
-          console.error('[Analysis] Step1 trigger failed:', error);
+        const step1Url = `${baseUrl}/api/analysis/step1-data-cleaning`;
+        console.log('[Analysis] 🔍 DEBUG: About to trigger step1', {
+          url: step1Url,
+          baseUrl: baseUrl,
+          envBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+          businessId: business_id,
+          hasListingText: !!listingText,
+          listingTextLength: listingText?.length,
+          listingTextPreview: listingText?.substring(0, 100)
         });
+        
+        try {
+          const fetchResponse = await fetch(step1Url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ businessId: business_id, listingText })
+          });
+          
+          console.log('[Analysis] Step1 triggered, status:', fetchResponse.status, fetchResponse.statusText);
+          
+          if (!fetchResponse.ok) {
+            const errorText = await fetchResponse.text();
+            console.error('[Analysis] ❌ Step1 error response:', {
+              status: fetchResponse.status,
+              statusText: fetchResponse.statusText,
+              error: errorText,
+              url: step1Url
+            });
+          } else {
+            const responseData = await fetchResponse.json();
+            console.log('[Analysis] ✅ Step1 success:', responseData);
+          }
+        } catch (error: any) {
+          console.error('[Analysis] ❌ Step1 fetch failed completely:', {
+            error: error?.message,
+            stack: error?.stack,
+            name: error?.name,
+            url: step1Url,
+            baseUrl: baseUrl
+          });
+        }
       } else if (firstIncomplete === 'step2_status') {
         fetch(`${baseUrl}/api/analysis/step2-location-data`, {
           method: 'POST',
@@ -270,19 +411,22 @@ export async function POST(request: Request) {
     } else {
       // Create new business
       business_id = uuidv4();
+      const businessInsert: any = {
+        id: business_id,
+        business_category_id: categoryId,
+        listing_url: listingUrl,
+        listing_text: listingText,  // Contains all data including user inputs in metadata block
+        step1_status: 'pending',
+        step2_status: 'pending',
+        step3_status: 'pending',
+        step4_status: 'pending',
+        step5_status: 'pending'
+      };
+      
+      // DO NOT save city/state directly - step1-data-cleaning will extract from listing_text
       const { error: bizError } = await supabaseAdmin
         .from('businesses')
-        .insert([{
-          id: business_id,
-          business_category_id: categoryId,
-          listing_url: listingUrl,
-          listing_text: listingText,
-          step1_status: 'pending',
-          step2_status: 'pending',
-          step3_status: 'pending',
-          step4_status: 'pending',
-          step5_status: 'pending'
-        }]);
+        .insert([businessInsert]);
         
       if (bizError) {
         console.error('[Analysis] Error inserting business:', bizError);
