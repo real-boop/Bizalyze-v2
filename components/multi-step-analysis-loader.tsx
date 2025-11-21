@@ -5,7 +5,6 @@ import { AnalysisErrorOverlay } from "./analysis-error-overlay";
 
 interface MultiStepAnalysisLoaderProps {
   status: {
-    step1Status: "pending" | "processing" | "completed" | "failed";
     step2Status: "pending" | "processing" | "completed" | "failed";
     step3Status: "pending" | "processing" | "completed" | "failed";
     step4Status: "pending" | "processing" | "completed" | "failed";
@@ -26,7 +25,6 @@ interface MultiStepAnalysisLoaderProps {
 }
 
 const ANALYSIS_STEPS = [
-  { key: "step1", label: "Preparing Inputs" },
   { key: "step2", label: "Getting Location Data" },
   { key: "step3", label: "Analyzing Business Data" },
   { key: "step4", label: "Analyzing Location Data" },
@@ -46,8 +44,7 @@ export const MultiStepAnalysisLoader: React.FC<MultiStepAnalysisLoaderProps> = (
 }) => {
   const router = useRouter();
   const [stepsStatus, setStepsStatus] = useState<{ [key: string]: "processing" | "done" | "error" | "pending" }>({
-    step1: "processing",
-    step2: "pending",
+    step2: "processing",
     step3: "pending",
     step4: "pending",
     step5: "pending",
@@ -69,6 +66,12 @@ export const MultiStepAnalysisLoader: React.FC<MultiStepAnalysisLoaderProps> = (
     const newStepsStatus = { ...stepsStatus };
     Object.entries(status).forEach(([key, value]) => {
       const stepKey = key.replace('Status', '');
+      
+      // Defensive: Only process steps that exist in ANALYSIS_STEPS
+      if (!ANALYSIS_STEPS.find(s => s.key === stepKey)) {
+        return; // Skip steps not in UI
+      }
+      
       if (value === 'processing') {
         newStepsStatus[stepKey] = 'processing';
       } else if (value === 'completed') {
