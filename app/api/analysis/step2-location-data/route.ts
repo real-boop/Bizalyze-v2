@@ -242,8 +242,7 @@ async function callPerplexityAPI(
       stream: false
     };
     
-    logger.debug(`[Perplexity][${agentName}] Full request body:`, JSON.stringify(requestBody, null, 2));
-    logger.debug(`[Perplexity][${agentName}] About to make API call to Perplexity`);
+    logger.debug(`[Perplexity][${agentName}] API call started`);
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -254,19 +253,12 @@ async function callPerplexityAPI(
       body: JSON.stringify(requestBody)
     });
 
-    logger.debug(`[Perplexity][${agentName}] HTTP response status:`, response.status);
-    logger.debug(`[Perplexity][${agentName}] HTTP response headers:`, Object.fromEntries(response.headers.entries()));
-
     const text = await response.text();
-    logger.debug(`[Perplexity][${agentName}] Raw response text:`, text);
-    logger.debug(`[Perplexity][${agentName}] Raw response length:`, text.length);
 
     let apiResponse;
     try {
       apiResponse = JSON.parse(text);
-      logger.debug(`[Perplexity][${agentName}] Successfully parsed JSON response`);
-      logger.debug(`[Perplexity][${agentName}] Parsed response keys:`, Object.keys(apiResponse));
-      logger.debug(`[Perplexity][${agentName}] Full parsed response:`, JSON.stringify(apiResponse, null, 2));
+      logger.debug(`[Perplexity][${agentName}] API call completed`);
     } catch (err) {
       logger.error(`[Perplexity][${agentName}] Failed to parse JSON response:`, err);
       logger.error(`[Perplexity][${agentName}] Raw text that failed to parse:`, text);
@@ -303,18 +295,10 @@ async function callPerplexityAPI(
       return { error: 'Perplexity response missing content', status: 'failed' };
     }
 
-    logger.debug(`[Perplexity][${agentName}] Content type:`, typeof content);
-    logger.debug(`[Perplexity][${agentName}] Content length:`, content.length);
-    logger.debug(`[Perplexity][${agentName}] Content preview (first 500 chars):`, content.substring(0, 500));
-    logger.debug(`[Perplexity][${agentName}] Full content:`, content);
-
     // Parse the JSON content
     let schemaResult;
     try {
       schemaResult = typeof content === 'string' ? JSON.parse(content) : content;
-      logger.debug(`[Perplexity][${agentName}] Successfully parsed content JSON`);
-      logger.debug(`[Perplexity][${agentName}] Parsed content keys:`, Object.keys(schemaResult));
-      logger.debug(`[Perplexity][${agentName}] Full parsed content:`, JSON.stringify(schemaResult, null, 2));
     } catch (e) {
       logger.error(`[Perplexity][${agentName}] Failed to parse content as JSON:`, e);
       logger.error(`[Perplexity][${agentName}] Content that failed to parse:`, content);
@@ -333,7 +317,6 @@ async function callPerplexityAPI(
       return { error: 'Perplexity response missing location property', status: 'failed' };
     }
 
-    logger.debug(`[Perplexity][${agentName}] Location object:`, JSON.stringify(schemaResult.location, null, 2));
 
     if (!schemaResult.location.state) {
       logger.error(`[Perplexity][${agentName}] No 'state' property in location:`, schemaResult.location);
@@ -558,7 +541,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Business not found.' }, { status: 404 });
     }
 
-    logger.debug('[step2-location-data] Fetched business data:', business);
+    logger.debug('[Step2] Fetched business data');
 
     const location = {
       city: business.city ?? null,
@@ -567,7 +550,7 @@ export async function POST(request: Request) {
       zip: business.zip ?? null,
     };
 
-    logger.debug('[step2-location-data] Constructed location object:', location);
+    logger.debug('[Step2] Constructed location object');
 
     // Extract business category as single object (following CompetitionTab.tsx pattern)
     const businessCategory = business.business_categories ? {
