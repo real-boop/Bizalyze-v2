@@ -28,22 +28,28 @@ export function useAnalysisStatus(businessId: string | null) {
         const res = await fetch(`/api/business-status?id=${businessId}`);
         const data = await res.json();
         
+        // Check all 5 steps internally
         const allComplete = ['step1_status', 'step2_status', 'step3_status', 'step4_status', 'step5_status']
           .every(step => data[step] === 'completed');
+        
+        // Check if step1 is completed (pre-validated business)
+        const isPreValidated = data.step1_status === 'completed';
+        
+        // Update all 5 steps internally
+        setStatuses({
+          step1: data.step1_status || 'pending',
+          step2: data.step2_status || 'pending',
+          step3: data.step3_status || 'pending',
+          step4: data.step4_status || 'pending',
+          step5: data.step5_status || 'pending'
+        });
           
         if (allComplete) {
           // Show all green checkmarks for 2 seconds then redirect
-          setStatuses({
-            step1: 'completed',
-            step2: 'completed', 
-            step3: 'completed',
-          step4: 'completed',
-          step5: 'completed'
-        });
-        setTimeout(() => {
-          window.location.href = `/dashboard/${businessId}`;
-        }, 2000);
-        return;
+          setTimeout(() => {
+            window.location.href = `/dashboard/${businessId}`;
+          }, 2000);
+          return;
         }
       } catch (err) {
         console.error('Initial status check failed:', err);
@@ -75,20 +81,31 @@ export function useAnalysisStatus(businessId: string | null) {
           step5: data.step5_status || 'pending'
         });
 
-        // Check for failed steps
+        // Check for failed steps (check all 5 steps internally)
         const failedStep = Object.entries(data).find(([key, value]) => 
           key.includes('_status') && value === 'failed'
         );
 
         if (failedStep && !isRetrying) {
           const stepNumber = failedStep[0].replace('step', '').replace('_status', '');
-          setError({
-            step: stepNumber,
-            message: `Step ${stepNumber} failed`,
-            canViewPartial: parseInt(stepNumber) >= 3 && data.step2_status === 'completed'
-          });
-          clearInterval(interval);
-          return;
+          // Don't expose step1 errors to UI (handle internally)
+          if (stepNumber !== '1') {
+            // Step labels for better error messages
+            const stepLabels: Record<string, string> = {
+              '2': 'Getting Location Data',
+              '3': 'Analyzing Business Data',
+              '4': 'Analyzing Location Data',
+              '5': 'Creating Recommendation'
+            };
+            
+            setError({
+              step: stepNumber,
+              message: `${stepLabels[stepNumber] || `Step ${stepNumber}`} failed`,
+              canViewPartial: parseInt(stepNumber) >= 3 && data.step2_status === 'completed'
+            });
+            clearInterval(interval);
+            return;
+          }
         }
 
       // Auto-redirect when complete
@@ -140,6 +157,14 @@ export function useAnalysisStatus(businessId: string | null) {
     }
   };
 
-  return { statuses, isComplete, error, retry, isRetrying };
+  // Expose only step2-5 to components (step1 is handled internally)
+  const exposedStatuses = {
+    step2: statuses.step2,
+    step3: statuses.step3,
+    step4: statuses.step4,
+    step5: statuses.step5
+  };
+
+  return { statuses: exposedStatuses, isComplete, error, retry, isRetrying };
 } 
 
