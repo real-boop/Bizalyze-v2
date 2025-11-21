@@ -116,10 +116,10 @@ const cleanAssessmentText = (text: string) => {
   let cleaned = text.replace(/\[\d+\]/g, '');
   
   // 2. Fix "k" values that should be monetary (90k, 100k, etc.) in income context
-  cleaned = cleaned.replace(/\b(\d+)k\b/g, (match, num) => {
+  cleaned = cleaned.replace(/\b(\d+)k\b/g, (match, num, offset) => {
     // Check if this k value is in a monetary context
-    const beforeMatch = cleaned.substring(0, cleaned.indexOf(match));
-    const afterMatch = cleaned.substring(cleaned.indexOf(match) + match.length);
+    const beforeMatch = cleaned.substring(0, offset);
+    const afterMatch = cleaned.substring(offset + match.length);
     const context = (beforeMatch + afterMatch).toLowerCase();
     
     if (context.includes('income') || context.includes('earning') || context.includes('households') || 
@@ -151,7 +151,7 @@ const cleanAssessmentText = (text: string) => {
   });
   
   // 4. Fix standalone large numbers that are clearly monetary (but not areas)
-  cleaned = cleaned.replace(/\b(\d{4,})\b/g, (match, num) => {
+  cleaned = cleaned.replace(/\b(\d{4,})\b/g, (match, num, offset) => {
     const number = parseInt(num);
     // Skip years, scores, ranges, percentages, and areas
     if (number >= 1900 && number <= 2100) return match; // years
@@ -159,7 +159,7 @@ const cleanAssessmentText = (text: string) => {
     if (match.includes('-') || match.includes('%')) return match; // ranges/percentages
     
     // Check if this number is followed by area measurements
-    const afterMatch = cleaned.substring(cleaned.indexOf(match) + match.length);
+    const afterMatch = cleaned.substring(offset + match.length);
     if (afterMatch.includes('sq ft') || afterMatch.includes('sqft') || afterMatch.includes('square feet')) {
       return match; // Don't add $ to area measurements
     }
@@ -601,6 +601,7 @@ const CompetitionTab: React.FC<CompetitionTabProps> = ({ businessId, showMapExpo
     if (hasFetchedRef.current) return
     hasFetchedRef.current = true
     
+    // Only fetch if we're actually going to fetch
     fetchAllData()
     // eslint-disable-next-line
   }, [businessId])
@@ -772,32 +773,42 @@ const CompetitionTab: React.FC<CompetitionTabProps> = ({ businessId, showMapExpo
                 {climate && (
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     {/* Left: Restaurants Nearby */}
-                    <Card className="p-4">
-                      <div className="text-sm font-medium text-gray-700 mb-2">
-                        {businessCategory
-                          ? `${businessCategory.display_name} Nearby`
-                          : 'Businesses Nearby'}
-                      </div>
-                      <div className="text-xl font-bold text-gray-900">
-                        {climate.business_count ?? 'N/A'}
+                    <Card>
+                      <div className="p-6">
+                        <div className="flex items-center text-gray-500 mb-2">
+                          <span className="text-sm font-medium text-gray-700">
+                            {businessCategory
+                              ? `${businessCategory.display_name} Nearby`
+                              : 'Businesses Nearby'}
+                          </span>
+                        </div>
+                        <div className="text-lg md:text-2xl font-bold text-gray-900">
+                          {climate.business_count ?? 'N/A'}
+                        </div>
                       </div>
                     </Card>
                     {/* Right: Average Rating */}
-                    <Card className="p-4">
-                      <div className="text-sm font-medium text-gray-700 mb-2">
-                        Average Rating
-                      </div>
-                      <div className="flex items-center">
-                        {[1,2,3,4,5].map(i => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${i <= Math.round(climate.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
-                            fill={i <= Math.round(climate.average_rating || 0) ? '#facc15' : 'none'}
-                          />
-                        ))}
-                        <span className="ml-2 text-xl font-bold text-gray-900">
-                          {climate.average_rating ? climate.average_rating.toFixed(1) : 'N/A'}
-                        </span>
+                    <Card>
+                      <div className="p-6">
+                        <div className="flex items-center text-gray-500 mb-2">
+                          <span className="text-sm font-medium text-gray-700">Average Rating</span>
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <div className="flex items-center">
+                              {[1,2,3,4,5].map(i => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${i <= Math.round(climate.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                  fill={i <= Math.round(climate.average_rating || 0) ? '#facc15' : 'none'}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-lg md:text-2xl font-bold text-gray-900">
+                              {climate.average_rating ? climate.average_rating.toFixed(1) : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </Card>
                   </div>
