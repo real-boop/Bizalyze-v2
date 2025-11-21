@@ -62,6 +62,8 @@ npm run dev
 - `RESEND_API_KEY` - Resend for email services
 - `PERPLEXITY_API_KEY` - Perplexity for enhanced analysis
 - `GOOGLE_WORKSPACE_API_KEY` - Google Workspace integration
+- `NEXT_PUBLIC_DISABLE_POLAR_PAYMENTS` - Set to `"true"` to disable Polar payments (useful for testing/refactoring). When enabled, checkout popup is bypassed and analysis proceeds directly. The check is performed client-side before API calls.
+- `NEXT_PUBLIC_BYPASS_PAYWALL` - Set to `"true"` in development to bypass the dashboard paywall. Grants full access to all dashboards without payment verification.
 
 ## Deployment
 
