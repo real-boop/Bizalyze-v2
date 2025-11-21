@@ -37,71 +37,79 @@ function extractFirstJsonObject(text: string): string | null {
   return match ? match[0] : null;
 }
 
-async function runAssistant(assistantId: string, scrapeData: any) {
-  // Create a thread
-  const thread = await openai.beta.threads.create()
-  // Add a message to the thread (just the scraped data as user prompt)
-  await openai.beta.threads.messages.create(thread.id, {
-    role: "user",
-    content: JSON.stringify(scrapeData, null, 2),
-  })
-  // Run the assistant
-  const run = await openai.beta.threads.runs.create(thread.id, {
-    assistant_id: assistantId,
-  })
-  // Poll for completion
-  let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-  let attempts = 0
-  const maxAttempts = 30
-  while (runStatus.status !== "completed" && attempts < maxAttempts) {
-    if (["failed", "cancelled", "expired"].includes(runStatus.status)) {
-      throw new Error(`Run ${runStatus.status}: ${runStatus.last_error?.message || "Unknown error"}`)
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-    attempts++
-  }
-  if (attempts >= maxAttempts) {
-    throw new Error("Analysis timed out")
-  }
-  // Get the last assistant message
-  const messages = await openai.beta.threads.messages.list(thread.id)
-  const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
-  if (assistantMessages.length === 0) {
-    throw new Error("No assistant messages found")
-  }
-  const lastMessage = assistantMessages[0]
-  let content = ""
-  if (lastMessage.content && lastMessage.content.length > 0) {
-    const textContent = lastMessage.content.find((item) => item.type === "text")
-    if (textContent && "text" in textContent) {
-      content = textContent.text.value
-    }
-  }
-  if (!content) {
-    throw new Error("No text content found in assistant message")
-  }
-  // Log the raw assistant response
-  logger.debug('Raw assistant response:', content);
-  // Extract JSON from content
-  const jsonString = extractFirstJsonObject(content);
-  // Log the extracted JSON string
-  logger.debug('Extracted JSON string:', jsonString);
-  if (!jsonString) {
-    logger.error('Could not extract JSON from assistant response:', content);
-    throw new Error('Assistant response does not contain a JSON object');
-  }
-  // Parse as JSON
-  let parsed
+async function runAssistant(promptId: string, scrapeData: any) {
   try {
-    parsed = JSON.parse(jsonString)
-    // Log the parsed JSON object
-    logger.debug('Parsed JSON object:', parsed);
-  } catch (e) {
-    logger.error('Failed to parse extracted JSON:', jsonString);
-    throw new Error("Assistant response is not valid JSON")
+    logger.debug('OpenAI API call started', { promptId });
+
+    const response = await openai.responses.create({
+      model: "gpt-4.1",
+      prompt: { id: promptId },
+      input: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: JSON.stringify(scrapeData, null, 2)
+            }
+          ]
+        }
+      ],
+      store: false,
+    });
+
+    // Extract text from response output items
+    let content = "";
+    
+    if ((response as any).output && Array.isArray((response as any).output)) {
+      for (const item of (response as any).output) {
+        if (item.type === "message" && item.role === "assistant") {
+          if (item.content && Array.isArray(item.content)) {
+            for (const contentItem of item.content) {
+              if (contentItem.type === "output_text" && contentItem.text) {
+                content += contentItem.text;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      if ((response as any).output_text) {
+        content = (response as any).output_text;
+      }
+    }
+
+    if (!content) {
+      logger.debug('OpenAI API: No content in response');
+      throw new Error("No content in OpenAI response");
+    }
+    
+    // Extract JSON from content
+    const jsonString = extractFirstJsonObject(content);
+    
+    if (!jsonString) {
+      logger.debug('OpenAI API: No JSON found in response');
+      throw new Error('Response does not contain a JSON object');
+    }
+    
+    // Parse as JSON
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonString);
+      logger.debug('OpenAI API call completed', { promptId, responseSize: content.length });
+    } catch (e: any) {
+      logger.debug('OpenAI API: JSON parse failed', { error: e?.message });
+      throw new Error(`Response is not valid JSON: ${e?.message}`);
+    }
+    
+    return parsed;
+  } catch (error: any) {
+    logger.debug('OpenAI API call failed', { 
+      promptId, 
+      error: error instanceof Error ? error.message : String(error) 
+    });
+    throw error;
   }
-  return parsed
 }
 
 // --- Perplexity Demographics Integration ---
