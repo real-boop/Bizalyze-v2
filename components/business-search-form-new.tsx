@@ -47,6 +47,14 @@ export function BusinessSearchForm({
   const [internalAnalyzeOpen, setInternalAnalyzeOpen] = useState(true)
   const [internalFindOpen, setInternalFindOpen] = useState(false)
   
+  // Debug: Check if feature flag is loaded
+  useEffect(() => {
+    console.log('🔍 Feature flag status:', {
+      NEXT_PUBLIC_DISABLE_POLAR_PAYMENTS: process.env.NEXT_PUBLIC_DISABLE_POLAR_PAYMENTS,
+      paymentsDisabled: process.env.NEXT_PUBLIC_DISABLE_POLAR_PAYMENTS === 'true'
+    });
+  }, []);
+  
   const analyzeOpen = externalAnalyzeOpen !== undefined ? externalAnalyzeOpen : internalAnalyzeOpen
   const setAnalyzeOpen = externalSetAnalyzeOpen || setInternalAnalyzeOpen
   const findOpen = externalFindOpen !== undefined ? externalFindOpen : internalFindOpen
@@ -744,6 +752,43 @@ export function BusinessSearchForm({
     setIsProcessingPayment(true);
     
     try {
+      // FEATURE FLAG: Check if Polar payments are disabled (CLIENT-SIDE CHECK BEFORE API CALL)
+      const paymentsDisabled = process.env.NEXT_PUBLIC_DISABLE_POLAR_PAYMENTS === 'true';
+      
+      if (paymentsDisabled) {
+        console.log('🚫 Polar payments disabled - bypassing checkout entirely (no API call)');
+        
+        // Create pending record
+        const accountResponse = await fetch('/api/auth/create-temp-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email,
+            businessData
+          })
+        });
+
+        if (!accountResponse.ok) {
+          const errorData = await accountResponse.json();
+          console.error('Error creating pending record:', errorData);
+        } else {
+          console.log('✅ Pending record ready');
+        }
+
+        // Simulate payment success
+        const mockCheckoutId = `disabled-payment-${Date.now()}`;
+        setPaymentCompleted(true);
+        setPaymentCheckoutId(mockCheckoutId);
+        localStorage.setItem('checkout_completed', 'true');
+        localStorage.setItem('checkout_id', mockCheckoutId);
+        
+        toast.success("Payment bypassed. Click 'Run Analysis' to begin.");
+        setIsProcessingPayment(false);
+        handlePaymentSuccess(`analysis-${Date.now()}`);
+        return; // Exit early - never call the checkout API
+      }
+
+      // ONLY reach here if payments are ENABLED
       // ALWAYS create/update pending record (works for both new and existing users)
       console.log('Creating/updating pending record for:', email);
       const accountResponse = await fetch('/api/auth/create-temp-account', {
@@ -878,7 +923,6 @@ export function BusinessSearchForm({
             ) : (
               <MultiStepAnalysisLoader
                 status={{
-                  step1Status: statuses.step1,
                   step2Status: statuses.step2,
                   step3Status: statuses.step3,
                   step4Status: statuses.step4,
