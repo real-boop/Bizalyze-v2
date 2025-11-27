@@ -472,9 +472,8 @@ const Dashboard = () => {
       timestamp: new Date().toISOString()
     })
     
-    // FEATURE FLAG: Bypass paywall for development/testing
-    const shouldBypass = process.env.NODE_ENV === 'development' && 
-                         process.env.NEXT_PUBLIC_BYPASS_PAYWALL === 'true';
+    // FEATURE FLAG: Bypass paywall when environment variable is set
+    const shouldBypass = process.env.NEXT_PUBLIC_BYPASS_PAYWALL === 'true';
     
     if (shouldBypass) {
       console.log('🚫 Paywall bypassed via feature flag - granting full access');
